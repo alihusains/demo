@@ -1,92 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text to Speech</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        footer {
+            margin-top: 50px;
+            color: #555;
+        }
+    </style>
 </head>
+
 <body>
 
-<h1>Text to Speech</h1>
+    <div class="container">
+        <h1 class="mt-4">Text to Speech</h1>
 
-<label for="language">Select Language:</label>
-<select id="language">
-    <option value="as">Assamese - অসমীয়া</option>
-    <option value="bn">Bangla - বাংলা</option>
-    <option value="brx">Boro - बड़ो</option>
-    <option value="gu">Gujarati - ગુજરાતી</option>
-    <option value="hi">Hindi - हिंदी</option>
-    <!-- Add more language options as needed -->
-</select>
+        <div class="form-group">
+            <label for="language">Select Language:</label>
+            <select id="language" class="form-control">
+                <!-- Language options go here -->
 
-<label for="gender">Select Gender:</label>
-<select id="gender">
-    <option value="male">Male</option>
-    <option value="female">Female</option>
-</select>
+                <option value="as">Assamese - অসমীয়া</option>
+                <option value="bn">Bangla - বাংলা</option>
+                <option value="brx">Boro - बड़ो</option>
+                <option value="gu">Gujarati - ગુજરાતી</option>
+                <option value="hi">Hindi - हिंदी</option>
+                <option value="kn">Kannada - ಕನ್ನಡ</option>
+                <option value="ml">Malayalam - മലയാളം</option>
+                <option value="mni">Manipuri - মিতৈলোন</option>
+                <option value="mr">Marathi - मराठी</option>
+                <option value="or">Oriya - ଓଡ଼ିଆ</option>
+                <option value="raj">Rajasthani - राजस्थानी</option>
+                <option value="ta">Tamil - தமிழ்</option>
+                <option value="te">Telugu - తెలుగు</option>
+                <option value="pa">Panjabi - ਪੰਜਾਬੀ</option>
+                <option value="sa">Sanskrit - संस्कृतम्</option>
+                <option value="ur">Urdu - اُردُو</option>
+                <option value="en">English - English</option>
+                <option value="ne">Nepali - नेपाली</option>
+                <option value="si">Sinhala - සිංහල</option>
+            </select>
+        </div>
 
-<textarea id="textInput" rows="4" cols="50" placeholder="Enter your text here..."></textarea>
+        <div class="form-group">
+            <label for="gender">Select Gender:</label>
+            <select id="gender" class="form-control">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </div>
 
-<button onclick="convertTextToSpeech()">Convert</button>
+        <div class="form-group">
+            <label for="textInput">Enter Text:</label>
+            <textarea id="textInput" rows="4" class="form-control" placeholder="Enter your text here..."></textarea>
+        </div>
 
-<audio id="audioPlayer" controls style="display: none;"></audio>
+        <button onclick="convertTextToSpeech()" class="btn btn-success">Convert</button>
 
-<script>
-function convertTextToSpeech() {
-    const language = document.getElementById("language").value;
-    const gender = document.getElementById("gender").value;
-    const textInput = document.getElementById("textInput").value;
+        <audio id="audioPlayer" controls style="display: none;" class="mt-4"></audio>
 
-    const apiUrl = 'https://demo-api.models.ai4bharat.org/inference/tts';
+        <footer class="mt-4">Made with 💜 by Ali Husain Sorathiya</footer>
+    </div>
 
-    const requestBody = {
-        "controlConfig": {
-            "dataTracking": true
-        },
-        "input": [
-            {
-                "source": textInput
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        // Function to set user preferences in local storage
+        function setUserPreferences() {
+            const language = document.getElementById("language").value;
+            const gender = document.getElementById("gender").value;
+
+            // Save preferences in local storage
+            localStorage.setItem("language", language);
+            localStorage.setItem("gender", gender);
+        }
+
+        // Function to retrieve user preferences from local storage
+        function getUserPreferences() {
+            const language = localStorage.getItem("language");
+            const gender = localStorage.getItem("gender");
+
+            // Set saved preferences in the select elements
+            if (language) {
+                document.getElementById("language").value = language;
             }
-        ],
-        "config": {
-            "gender": gender,
-            "language": {
-                "sourceLanguage": language
+
+            if (gender) {
+                document.getElementById("gender").value = gender;
             }
         }
-    };
 
-    fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Assuming the API response contains audio data in base64 format
-        const audioContent = data.audio[0].audioContent;
-        const audioPlayer = document.getElementById("audioPlayer");
+        // Call getUserPreferences when the page loads
+        getUserPreferences();
 
-        // Convert base64 to Blob
-        const byteCharacters = atob(audioContent);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        // Function to convert text to speech
+        function convertTextToSpeech() {
+            // Call setUserPreferences before making the API call
+            setUserPreferences();
+
+            const language = document.getElementById("language").value;
+            const gender = document.getElementById("gender").value;
+            const textInput = document.getElementById("textInput").value;
+
+            const apiUrl = 'https://demo-api.models.ai4bharat.org/inference/tts';
+
+            const requestBody = {
+                "controlConfig": {
+                    "dataTracking": true
+                },
+                "input": [{
+                    "source": textInput
+                }],
+                "config": {
+                    "gender": gender,
+                    "language": {
+                        "sourceLanguage": language
+                    }
+                }
+            };
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const audioContent = data.audio[0].audioContent;
+                    const audioPlayer = document.getElementById("audioPlayer");
+
+                    // Convert base64 to Blob
+                    const byteCharacters = atob(audioContent);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], {
+                        type: 'audio/wav'
+                    });
+
+                    // Set audio source
+                    audioPlayer.src = URL.createObjectURL(blob);
+                    audioPlayer.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
         }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'audio/wav' });
-
-        // Set audio source
-        audioPlayer.src = URL.createObjectURL(blob);
-        audioPlayer.style.display = 'block';
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-</script>
+    </script>
 
 </body>
+
 </html>
