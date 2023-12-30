@@ -39,7 +39,8 @@
         }
 
         button {
-            padding: 10px;
+            padding: 30px;
+            margin:10px;
             background-color: #4caf50;
             color: #fff;
             border: none;
@@ -51,9 +52,18 @@
             background-color: #45a049;
         }
 
+        /* Loading spinner styles */
+        .spinner-border {
+            display: none;
+            margin-top: 10px 0px 10px 5px;
+         
+            color: #4caf50;
+        }
+
         audio {
             width: 100%;
             margin-top: 20px;
+               
         }
 
         footer {
@@ -72,7 +82,7 @@
             <label for="language">Select Language:</label>
             <select id="language" class="form-control">
                 <!-- Language options go here -->
-                         <option value="en">Indian - English</option>
+                <option value="en">Indian - English</option>
                 <option value="as">Assamese - অসমীয়া</option>
                 <option value="bn">Bangla - বাংলা</option>
                 <option value="brx">Boro - बड़ो</option>
@@ -107,7 +117,12 @@
             <textarea id="textInput" rows="4" class="form-control" placeholder="Enter your text here..."></textarea>
         </div>
 
-        <button onclick="convertTextToSpeech()" class="btn btn-success">Convert</button>
+        <button id="convertButton" onclick="convertTextToSpeech()" class="btn btn-success">Convert</button>
+        
+        <!-- Loading spinner -->
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
 
         <audio id="audioPlayer" controls style="display: none;" class="mt-4"></audio>
 
@@ -180,6 +195,12 @@
                 }
             };
 
+            // Disable the convert button
+            document.getElementById("convertButton").disabled = true;
+
+            // Show the loading spinner
+            document.querySelector('.spinner-border').style.display = 'inline-block';
+
             fetch(apiUrl, {
                     method: 'POST',
                     headers: {
@@ -206,9 +227,17 @@
                     // Set audio source
                     audioPlayer.src = URL.createObjectURL(blob);
                     audioPlayer.style.display = 'block';
+                    audioPlayer.load(); // Reset audio element
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                })
+                .finally(() => {
+                    // Enable the convert button
+                    document.getElementById("convertButton").disabled = false;
+
+                    // Hide the loading spinner
+                    document.querySelector('.spinner-border').style.display = 'none';
                 });
         }
     </script>
