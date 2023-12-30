@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Speech</title>
+</head>
+<body>
+
+<h1>Text to Speech</h1>
+
+<label for="language">Select Language:</label>
+<select id="language">
+    <option value="as">Assamese - অসমীয়া</option>
+    <option value="bn">Bangla - বাংলা</option>
+    <option value="brx">Boro - बड़ो</option>
+    <option value="gu">Gujarati - ગુજરાતી</option>
+    <option value="hi">Hindi - हिंदी</option>
+    <!-- Add more language options as needed -->
+</select>
+
+<label for="gender">Select Gender:</label>
+<select id="gender">
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+</select>
+
+<textarea id="textInput" rows="4" cols="50" placeholder="Enter your text here..."></textarea>
+
+<button onclick="convertTextToSpeech()">Convert</button>
+
+<audio id="audioPlayer" controls style="display: none;"></audio>
+
+<script>
+function convertTextToSpeech() {
+    const language = document.getElementById("language").value;
+    const gender = document.getElementById("gender").value;
+    const textInput = document.getElementById("textInput").value;
+
+    const apiUrl = 'https://demo-api.models.ai4bharat.org/inference/tts';
+
+    const requestBody = {
+        "controlConfig": {
+            "dataTracking": true
+        },
+        "input": [
+            {
+                "source": textInput
+            }
+        ],
+        "config": {
+            "gender": gender,
+            "language": {
+                "sourceLanguage": language
+            }
+        }
+    };
+
+    fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Assuming the API response contains audio data in base64 format
+        const audioContent = data.audio[0].audioContent;
+        const audioPlayer = document.getElementById("audioPlayer");
+
+        // Convert base64 to Blob
+        const byteCharacters = atob(audioContent);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'audio/wav' });
+
+        // Set audio source
+        audioPlayer.src = URL.createObjectURL(blob);
+        audioPlayer.style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
+
+</body>
+</html>
