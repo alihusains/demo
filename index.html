@@ -40,7 +40,7 @@
 
         button {
             padding: 30px;
-            margin:10px;
+            margin: 10px;
             background-color: #4caf50;
             color: #fff;
             border: none;
@@ -56,14 +56,23 @@
         .spinner-border {
             display: none;
             margin-top: 10px 0px 10px 5px;
-         
             color: #4caf50;
         }
 
         audio {
             width: 100%;
             margin-top: 20px;
-               
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+
+        .character-count {
+            text-align: left;
+            color: #555;
+            margin-top: 5px;
         }
 
         footer {
@@ -114,15 +123,19 @@
 
         <div class="form-group">
             <label for="textInput">Enter Text:</label>
-            <textarea id="textInput" rows="4" class="form-control" placeholder="Enter your text here..."></textarea>
+            <textarea id="textInput" rows="4" class="form-control" placeholder="Enter your text here..." oninput="updateCharacterCount()"></textarea>
+            <div id="characterCount" class="character-count"></div>
         </div>
 
         <button id="convertButton" onclick="convertTextToSpeech()" class="btn btn-success">Convert</button>
-        
+
         <!-- Loading spinner -->
         <div class="spinner-border" role="status">
             <span class="sr-only">Loading...</span>
         </div>
+
+        <!-- Error message -->
+        <div id="errorMessage" class="error-message"></div>
 
         <audio id="audioPlayer" controls style="display: none;" class="mt-4"></audio>
 
@@ -201,6 +214,9 @@
             // Show the loading spinner
             document.querySelector('.spinner-border').style.display = 'inline-block';
 
+            // Clear previous error message
+            document.getElementById("errorMessage").innerHTML = "";
+
             fetch(apiUrl, {
                     method: 'POST',
                     headers: {
@@ -208,7 +224,12 @@
                     },
                     body: JSON.stringify(requestBody),
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     const audioContent = data.audio[0].audioContent;
                     const audioPlayer = document.getElementById("audioPlayer");
@@ -231,6 +252,9 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+
+                    // Display error message
+                    document.getElementById("errorMessage").innerHTML = "An error occurred. Please try again.";
                 })
                 .finally(() => {
                     // Enable the convert button
@@ -239,6 +263,13 @@
                     // Hide the loading spinner
                     document.querySelector('.spinner-border').style.display = 'none';
                 });
+        }
+
+        // Function to update character count
+        function updateCharacterCount() {
+            const textInput = document.getElementById("textInput").value;
+            const characterCount = textInput.length;
+            document.getElementById("characterCount").innerHTML = `Character Count: ${characterCount}`;
         }
     </script>
 
