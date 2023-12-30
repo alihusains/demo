@@ -72,7 +72,6 @@
             <label for="language">Select Language:</label>
             <select id="language" class="form-control">
                 <!-- Language options go here -->
-
                 <option value="as">Assamese - অসমীয়া</option>
                 <option value="bn">Bangla - বাংলা</option>
                 <option value="brx">Boro - बड़ो</option>
@@ -153,9 +152,16 @@
             // Call setUserPreferences before making the API call
             setUserPreferences();
 
+            const textInput = document.getElementById("textInput").value;
+
+            // Check if the textarea is not empty
+            if (!textInput.trim()) {
+                alert("Please enter text before converting to speech.");
+                return;
+            }
+
             const language = document.getElementById("language").value;
             const gender = document.getElementById("gender").value;
-            const textInput = document.getElementById("textInput").value;
 
             const apiUrl = 'https://demo-api.models.ai4bharat.org/inference/tts';
 
@@ -175,12 +181,12 @@
             };
 
             fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(requestBody),
-            })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                })
                 .then(response => response.json())
                 .then(data => {
                     const audioContent = data.audio[0].audioContent;
